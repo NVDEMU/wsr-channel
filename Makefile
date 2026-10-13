@@ -8,28 +8,33 @@ INCLUDES := source
 CFILES := $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 OFILES := $(CFILES:.c=.o)
 
-# LIBOGC_INC is exported by wii_rules; defer expansion until after inclusion.
-INCLUDE = -I$(LIBOGC_INC) $(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir))
-
 export OUTPUT := $(CURDIR)/$(TARGET)
 export VPATH := $(foreach dir,$(SOURCES),$(CURDIR)/$(dir))
 export DEPSDIR := $(CURDIR)/$(BUILD)
 
-# Attach source objects explicitly: generic wii_rules %.elf rule has no deps.
+# wii_rules defines LIBOGC_INC, LIBOGC_LIB, MACHDEP and PORTLIBS.
+# Defer INCLUDE/LIBPATHS expansion until after that include.
+LIBDIRS := $(PORTLIBS)
+INCLUDE = $(foreach dir,$(INCLUDES),-iquote $(CURDIR)/$(dir)) \
+          $(foreach dir,$(LIBDIRS),-I$(dir)/include) \
+          -I$(CURDIR)/$(BUILD) -I$(LIBOGC_INC)
+
 CFLAGS = -g -O2 -Wall -Wextra $(MACHDEP) $(INCLUDE)
-LDFLAGS = -g -Wl,-Map,$(notdir $@).map
-LIBS := -lwiiuse -lbte -logc
-LIBPATHS = -L$(LIBOGC_LIB) -L$(PORTLIBS_PATH)/wii/lib -L$(PORTLIBS_PATH)/ppc/lib
+LDFLAGS = -g $(MACHDEP) -Wl,-Map,$(notdir $@).map
+LIBS := -lwiiuse -lbte -logc -lm
+LIBPATHS = $(foreach dir,$(LIBDIRS),-L$(dir)/lib) -L$(LIBOGC_LIB)
 
 .PHONY: all clean package-sd
 all: $(OUTPUT).dol
 
 include $(DEVKITPPC)/wii_rules
 
-# Wii rules use $(LD) directly; GNU Make defaults LD to host ld. Force the
-# PowerPC GCC driver so Wii startup objects/specs and runtime libraries work.
-LD := $(DEVKITPPC)/bin/powerpc-eabi-gcc
+# The standard Wii rules call $(LD), but GNU Make otherwise defaults to the
+# host linker. Use the devkitPPC GCC driver for the correct Wii runtime setup.
+export LD := $(CC)
 
+# Explicit dependencies are required: wii_rules provides a generic %.elf
+# recipe but no prerequisite list of source objects.
 $(OUTPUT).elf: $(OFILES)
 
 $(BUILD):
