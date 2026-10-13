@@ -15,9 +15,10 @@ export DEPSDIR := $(CURDIR)/$(BUILD)
 
 # wii_rules compiles with GCC but links with $(LD) directly. Keep CPU
 # options in CFLAGS; native ld receives only its supported options.
-# Use recursive assignment because MACHDEP is defined by wii_rules below.
+# Recursive variables allow paths/MACHDEP from wii_rules to resolve.
 CFLAGS = -g -O2 -Wall -Wextra $(MACHDEP) $(INCLUDE)
 LDFLAGS = -g -Map $(notdir $@).map
+LIBPATHS = -L$(LIBOGC_LIB) -L$(PORTLIBS_PATH)/wii/lib -L$(PORTLIBS_PATH)/ppc/lib
 LIBS := -lwiiuse -lbte -logc
 
 .PHONY: all clean package-sd
