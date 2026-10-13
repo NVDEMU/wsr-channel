@@ -33,7 +33,7 @@ static void render_home(int selection)
 {
     int i;
 
-    console_clear();
+    consoleClear();
     printf("============================================================\n");
     printf("                    RESORT RECORDS                          \n");
     printf("             Wii Sports Resort companion                    \n");
@@ -55,7 +55,7 @@ static void render_records(void)
         g_save_probe_attempted = true;
     }
 
-    console_clear();
+    consoleClear();
     printf("============================================================\n");
     printf("                      SPORTS RECORDS                        \n");
     printf("============================================================\n\n");
@@ -76,7 +76,7 @@ static void render_records(void)
 
 static void render_challenges(void)
 {
-    console_clear();
+    consoleClear();
     printf("============================================================\n");
     printf("                    OFFLINE CHALLENGES                      \n");
     printf("============================================================\n\n");
@@ -93,7 +93,7 @@ static void render_challenges(void)
 
 static void render_settings(void)
 {
-    console_clear();
+    consoleClear();
     printf("============================================================\n");
     printf("                         SETTINGS                           \n");
     printf("============================================================\n\n");
@@ -107,7 +107,7 @@ static void render_settings(void)
 
 static void render_about(void)
 {
-    console_clear();
+    consoleClear();
     printf("============================================================\n");
     printf("                    ABOUT RESORT RECORDS                    \n");
     printf("============================================================\n\n");
