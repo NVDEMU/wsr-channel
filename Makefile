@@ -7,7 +7,9 @@ INCLUDES := source
 
 CFILES := $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 OFILES := $(CFILES:.c=.o)
-INCLUDE := $(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir))
+
+# LIBOGC_INC is exported by wii_rules; defer expansion until after inclusion.
+INCLUDE = -I$(LIBOGC_INC) $(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir))
 
 export OUTPUT := $(CURDIR)/$(TARGET)
 export VPATH := $(foreach dir,$(SOURCES),$(CURDIR)/$(dir))
