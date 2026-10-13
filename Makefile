@@ -13,9 +13,10 @@ export OUTPUT := $(CURDIR)/$(TARGET)
 export VPATH := $(foreach dir,$(SOURCES),$(CURDIR)/$(dir))
 export DEPSDIR := $(CURDIR)/$(BUILD)
 
+# wii_rules links with $(LD) directly, so use native ld flags here.
 # Keep these recursive: MACHDEP is set by wii_rules below.
 CFLAGS = -g -O2 -Wall -Wextra $(MACHDEP) $(INCLUDE)
-LDFLAGS = -g $(MACHDEP) -Wl,-Map,$(notdir $@).map
+LDFLAGS = -g $(MACHDEP) -Map $(notdir $@).map
 LIBS := -lwiiuse -lbte -logc
 
 .PHONY: all clean package-sd
