@@ -1,0 +1,68 @@
+name: Build Resort Records
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Compile Wii DOL
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build with official devkitPro container
+        env:
+          PROJECT_DIR: ${{ github.workspace }}
+        run: |
+          docker run --rm \
+            -v "$PROJECT_DIR:/work" \
+            -w /work \
+            devkitpro/devkitppc:latest \
+            make clean all package-sd
+
+      - name: Verify outputs
+        run: |
+          test -s resort-records.dol
+          test -s dist/resort-records-sd.zip
+          test -s dist/apps/resort-records/boot.dol
+          file resort-records.dol
+
+      - name: Upload development build
+        uses: actions/upload-artifact@v4
+        with:
+          name: resort-records-build
+          path: |
+            resort-records.dol
+            dist/resort-records-sd.zip
+            dist/apps/resort-records/boot.dol
+            dist/apps/resort-records/meta.xml
+          if-no-files-found: error
+          retention-days: 30
+
+  release:
+    name: Publish tagged development build
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: resort-records-build
+          path: release-files
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            release-files/resort-records.dol
+            release-files/resort-records-sd.zip
