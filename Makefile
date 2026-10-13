@@ -13,12 +13,10 @@ export OUTPUT := $(CURDIR)/$(TARGET)
 export VPATH := $(foreach dir,$(SOURCES),$(CURDIR)/$(dir))
 export DEPSDIR := $(CURDIR)/$(BUILD)
 
-# The standard Wii rules compile C sources with powerpc-eabi-gcc but GNU Make's
-# built-in LD defaults to host ld. Use the cross-compiler driver for linking so
-# Wii startup objects/specs and runtime libraries are set up correctly.
+# devkitPro's wii_rules leaves the %.elf prerequisite list empty in its
+# generic rule; explicitly attach compiled sources so $^ is passed to linker.
 CFLAGS = -g -O2 -Wall -Wextra $(MACHDEP) $(INCLUDE)
-LDFLAGS = -g $(MACHDEP) -Wl,-Map,$(notdir $@).map
-LIBPATHS = -L$(LIBOGC_LIB) -L$(PORTLIBS_PATH)/wii/lib -L$(PORTLIBS_PATH)/ppc/lib
+LDFLAGS = -g -Wl,-Map,$(notdir $@).map
 LIBS := -lwiiuse -lbte -logc
 
 .PHONY: all clean package-sd
@@ -26,7 +24,11 @@ all: $(OUTPUT).dol
 
 include $(DEVKITPPC)/wii_rules
 
+# Wii rules use $(LD) directly; GNU Make defaults LD to host ld. Force the
+# PowerPC GCC driver so Wii startup objects/specs and runtime libraries work.
 LD := $(DEVKITPPC)/bin/powerpc-eabi-gcc
+
+$(OUTPUT).elf: $(OFILES)
 
 $(BUILD):
 	mkdir -p $@
