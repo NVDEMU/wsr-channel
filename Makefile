@@ -13,10 +13,12 @@ export OUTPUT := $(CURDIR)/$(TARGET)
 export VPATH := $(foreach dir,$(SOURCES),$(CURDIR)/$(dir))
 export DEPSDIR := $(CURDIR)/$(BUILD)
 
-# wii_rules compiles with GCC but links with $(LD) directly. Keep CPU
-# options in CFLAGS and pass only native linker options in LDFLAGS.
+# The standard Wii rules compile C sources with powerpc-eabi-gcc but GNU Make's
+# built-in LD defaults to host ld. Use the cross-compiler driver for linking so
+# Wii startup objects/specs and runtime libraries are set up correctly.
 CFLAGS = -g -O2 -Wall -Wextra $(MACHDEP) $(INCLUDE)
-LDFLAGS = -g -Map $(notdir $@).map
+LDFLAGS = -g $(MACHDEP) -Wl,-Map,$(notdir $@).map
+LIBPATHS = -L$(LIBOGC_LIB) -L$(PORTLIBS_PATH)/wii/lib -L$(PORTLIBS_PATH)/ppc/lib
 LIBS := -lwiiuse -lbte -logc
 
 .PHONY: all clean package-sd
@@ -24,10 +26,7 @@ all: $(OUTPUT).dol
 
 include $(DEVKITPPC)/wii_rules
 
-# Explicitly choose the cross-linker in case the environment provides a
-# host LD override. Linking a Wii PPC object with host ld creates bad output.
-LD := $(DEVKITPPC)/bin/powerpc-eabi-ld
-LIBPATHS = -L$(LIBOGC_LIB) -L$(PORTLIBS_PATH)/wii/lib -L$(PORTLIBS_PATH)/ppc/lib
+LD := $(DEVKITPPC)/bin/powerpc-eabi-gcc
 
 $(BUILD):
 	mkdir -p $@
