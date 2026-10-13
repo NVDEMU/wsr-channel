@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<app version="1">
+  <name>Resort Records</name>
+  <coder>NVDEMU</coder>
+  <version>0.1.0</version>
+  <release_date>20261013</release_date>
+  <short_description>Wii Sports Resort records companion</short_description>
+  <long_description>An offline-first companion prototype for Wii Sports Resort. Current builds only probe save-file access; record decoding is not implemented yet.</long_description>
+  <ahb_access/>
+</app>
