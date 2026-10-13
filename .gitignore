@@ -1,0 +1,12 @@
+# devkitPPC build products
+*.o
+*.elf
+*.dol
+*.map
+build/
+dist/
+
+# Local console/game save samples: do not commit personal saves
+*.dat
+*.bin
+*.wad
