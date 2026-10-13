@@ -14,17 +14,20 @@ export VPATH := $(foreach dir,$(SOURCES),$(CURDIR)/$(dir))
 export DEPSDIR := $(CURDIR)/$(BUILD)
 
 # wii_rules compiles with GCC but links with $(LD) directly. Keep CPU
-# options in CFLAGS; native ld receives only its supported options.
-# Recursive variables allow paths/MACHDEP from wii_rules to resolve.
+# options in CFLAGS and pass only native linker options in LDFLAGS.
 CFLAGS = -g -O2 -Wall -Wextra $(MACHDEP) $(INCLUDE)
 LDFLAGS = -g -Map $(notdir $@).map
-LIBPATHS = -L$(LIBOGC_LIB) -L$(PORTLIBS_PATH)/wii/lib -L$(PORTLIBS_PATH)/ppc/lib
 LIBS := -lwiiuse -lbte -logc
 
 .PHONY: all clean package-sd
 all: $(OUTPUT).dol
 
 include $(DEVKITPPC)/wii_rules
+
+# Explicitly choose the cross-linker in case the environment provides a
+# host LD override. Linking a Wii PPC object with host ld creates bad output.
+LD := $(DEVKITPPC)/bin/powerpc-eabi-ld
+LIBPATHS = -L$(LIBOGC_LIB) -L$(PORTLIBS_PATH)/wii/lib -L$(PORTLIBS_PATH)/ppc/lib
 
 $(BUILD):
 	mkdir -p $@
