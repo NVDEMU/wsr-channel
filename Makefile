@@ -15,11 +15,11 @@ export OUTPUT := $(CURDIR)/$(TARGET)
 export VPATH := $(foreach dir,$(SOURCES),$(CURDIR)/$(dir))
 export DEPSDIR := $(CURDIR)/$(BUILD)
 
-# devkitPro's wii_rules leaves the %.elf prerequisite list empty in its
-# generic rule; explicitly attach compiled sources so $^ is passed to linker.
+# Attach source objects explicitly: generic wii_rules %.elf rule has no deps.
 CFLAGS = -g -O2 -Wall -Wextra $(MACHDEP) $(INCLUDE)
 LDFLAGS = -g -Wl,-Map,$(notdir $@).map
 LIBS := -lwiiuse -lbte -logc
+LIBPATHS = -L$(LIBOGC_LIB) -L$(PORTLIBS_PATH)/wii/lib -L$(PORTLIBS_PATH)/ppc/lib
 
 .PHONY: all clean package-sd
 all: $(OUTPUT).dol
